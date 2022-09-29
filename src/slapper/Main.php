@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace slapper;
 
+use minicore\commands\BaseCommand;
+use minicore\MiniCore;
 use pocketmine\block\BlockFactory;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -122,13 +124,13 @@ class Main extends PluginBase implements Listener {
     /** @var array<string, true> */
     public $idSessions = [];
     /** @var string */
-    public $prefix = TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper" . TextFormat::GREEN . "] ";
+    public $prefix = BaseCommand::PREFIX."§a"; //this should not be hardcoded like this, but whatever
     /** @var string */
-    public $noperm = TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper" . TextFormat::GREEN . "] You don't have permission.";
+    public $noperm = BaseCommand::PREFIX."§cYou don't have permission.";
     /** @var string */
     public $helpHeader =
         TextFormat::YELLOW . "---------- " .
-        TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper Help" . TextFormat::GREEN . "] " .
+        BaseCommand::PREFIX.TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper Help" . TextFormat::GREEN . "] " .
         TextFormat::YELLOW . "----------";
 
     /** @var string[] */
@@ -157,7 +159,8 @@ class Main extends PluginBase implements Listener {
         "scale: /slapper edit <eid> scale <size>",
         "tphere: /slapper edit <eid> tphere",
         "tpto: /slapper edit <eid> tpto",
-        "menuname: /slapper edit <eid> menuname <name/remove>"
+        "menuname: /slapper edit <eid> menuname <name/remove>",
+        "server: /slapper edit <eid> server"
     ];
 
     private SlapperCommandSender $commandSender;
@@ -566,6 +569,20 @@ class Main extends PluginBase implements Listener {
                                                         $sender->sendMessage($this->prefix . "Please enter a value.");
                                                     }
                                                     return true;
+                                                case "server":
+                                                    if (!$entity instanceof SlapperHuman) {
+                                                        $sender->sendMessage($this->prefix . "That entity is not a human.");
+                                                        return true;
+                                                    }
+
+                                                    if (isset($arg[2])) {
+                                                        $server = $args[2];
+                                                        $entity->setServerName($server);
+                                                        $sender->sendMessage($this->prefix . "Updated server name to $server.");
+                                                    } else {
+                                                        $entity->setServerName("");
+                                                        $sender->sendMessage($this->prefix . "Server name removed.");
+                                                    }
                                                 default:
                                                     $sender->sendMessage($this->prefix . "Unknown command.");
                                                     return true;

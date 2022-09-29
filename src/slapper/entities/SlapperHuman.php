@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace slapper\entities;
 
+use minicore\api\PlayerListAPI;
+use minicore\CustomPlayer;
 use pocketmine\entity\Human;
 use pocketmine\entity\Entity;
 use pocketmine\nbt\NBT;
@@ -26,13 +28,15 @@ class SlapperHuman extends Human implements SlapperInterface{
     use SlapperTrait;
 
     protected string $menuName;
+	protected string $serverName;
 
     private CompoundTag $namedTagHack;
 
     public function initEntity(CompoundTag $nbt): void{
 		parent::initEntity($nbt);
         $this->namedTagHack = $nbt;
-        $this->menuName = $nbt->getString('MenuName', '');
+		$this->menuName = $nbt->getString('MenuName', '');
+		$this->serverName = $nbt->getString('ServerName', '');
         if(($commandsTag = $nbt->getTag('Commands')) instanceof ListTag or $commandsTag instanceof CompoundTag){
             /** @var StringTag $stringTag */
             foreach($commandsTag as $stringTag){
@@ -46,7 +50,8 @@ class SlapperHuman extends Human implements SlapperInterface{
     public function saveNBT(): CompoundTag {
         $nbt = parent::saveNBT();
         $nbt = $nbt->merge($this->namedTagHack);
-        $nbt->setString('MenuName', $this->menuName);
+		$nbt->setString('MenuName', $this->menuName);
+		$nbt->setString('ServerName', $this->serverName);
         $commandsTag = new ListTag([], NBT::TAG_String);
         $nbt->setTag('Commands', $commandsTag);
         foreach($this->commands as $command => $bool){
@@ -55,6 +60,18 @@ class SlapperHuman extends Human implements SlapperInterface{
         $nbt->setString('SlapperVersion', $this->version);
         return $nbt;
     }
+
+	public function getNameTag(): string
+	{
+		if ($this->serverName == '') return parent::getNameTag();
+		else {
+			return parent::getNameTag(). '\n' . PlayerListAPI::getServerCountByName($this->serverName)." players";
+		}
+	}
+
+	public function setServerName(string $serverName): void{
+		$this->serverName = $serverName;
+	}
 
     public function setMenuName(string $menuName): void{
         $this->menuName = $menuName;
@@ -75,8 +92,12 @@ class SlapperHuman extends Human implements SlapperInterface{
             parent::sendData($targets, $data);
             return;
         }
+        $concat = $this->serverName !== '';
         foreach($targets as $p){
-            $data[EntityMetadataProperties::NAMETAG] = new StringMetadataProperty($this->getDisplayName($p));
+			/** @var CustomPlayer $p */
+            $data[EntityMetadataProperties::NAMETAG] = new StringMetadataProperty(
+				$this->getDisplayName($p) . $concat ? "\n".$p->getLang()->ts("lobby.slapperLore", ["count" => PlayerListAPI::getServerCountByName($this->serverName)]) : ""
+			);
             $p->getNetworkSession()->syncActorData($this, $data);
         }
     }
