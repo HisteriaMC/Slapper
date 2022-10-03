@@ -61,14 +61,6 @@ class SlapperHuman extends Human implements SlapperInterface{
         return $nbt;
     }
 
-	public function getNameTag(): string
-	{
-		if ($this->serverName == '') return parent::getNameTag();
-		else {
-			return parent::getNameTag(). '\n' . PlayerListAPI::getServerCountByName($this->serverName)." players";
-		}
-	}
-
 	public function setServerName(string $serverName): void{
 		$this->serverName = $serverName;
 	}
@@ -93,10 +85,11 @@ class SlapperHuman extends Human implements SlapperInterface{
             return;
         }
         $concat = $this->serverName !== '';
+
         foreach($targets as $p){
 			/** @var CustomPlayer $p */
             $data[EntityMetadataProperties::NAMETAG] = new StringMetadataProperty(
-				$this->getDisplayName($p) . $concat ? "\n".$p->getLang()->ts("lobby.slapperLore", ["count" => PlayerListAPI::getServerCountByName($this->serverName)]) : ""
+				$this->getDisplayName($p) . ($concat ? "\n".$p->getLang()->ts("lobby.slapperLore", ["count" => PlayerListAPI::getServerCountByName($this->serverName)]) : "")
 			);
             $p->getNetworkSession()->syncActorData($this, $data);
         }

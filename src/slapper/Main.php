@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace slapper;
 
-use minicore\commands\BaseCommand;
-use minicore\MiniCore;
 use pocketmine\block\BlockFactory;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
-use pocketmine\entity\Entity;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
 use pocketmine\entity\Human;
@@ -124,13 +121,13 @@ class Main extends PluginBase implements Listener {
     /** @var array<string, true> */
     public $idSessions = [];
     /** @var string */
-    public $prefix = BaseCommand::PREFIX."§a"; //this should not be hardcoded like this, but whatever
+    public $prefix = "§9[§bHisteria§9]§a "; //this should not be hardcoded like this, but whatever
     /** @var string */
-    public $noperm = BaseCommand::PREFIX."§cYou don't have permission.";
+    public $noperm = "§9[§bHisteria§9]§c You don't have permission.";
     /** @var string */
     public $helpHeader =
         TextFormat::YELLOW . "---------- " .
-        BaseCommand::PREFIX.TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper Help" . TextFormat::GREEN . "] " .
+        "§9[§bHisteria§9] ".TextFormat::GREEN . "[" . TextFormat::YELLOW . "Slapper Help" . TextFormat::GREEN . "] " .
         TextFormat::YELLOW . "----------";
 
     /** @var string[] */
