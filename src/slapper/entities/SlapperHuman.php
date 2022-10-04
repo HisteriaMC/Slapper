@@ -6,20 +6,21 @@ namespace slapper\entities;
 
 use minicore\api\PlayerListAPI;
 use minicore\CustomPlayer;
+use minicore\MiniCore;
 use pocketmine\entity\Human;
-use pocketmine\entity\Entity;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\convert\SkinAdapterSingleton;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
-use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
 use pocketmine\network\mcpe\protocol\types\entity\StringMetadataProperty;
 use pocketmine\network\mcpe\protocol\types\PlayerListEntry;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\scheduler\TaskHandler;
 use slapper\SlapperTrait;
 use slapper\SlapperInterface;
 
@@ -29,6 +30,7 @@ class SlapperHuman extends Human implements SlapperInterface{
 
     protected string $menuName;
 	protected string $serverName;
+    protected ?TaskHandler $currentTask = null;
 
     private CompoundTag $namedTagHack;
 
@@ -36,7 +38,7 @@ class SlapperHuman extends Human implements SlapperInterface{
 		parent::initEntity($nbt);
         $this->namedTagHack = $nbt;
 		$this->menuName = $nbt->getString('MenuName', '');
-		$this->serverName = $nbt->getString('ServerName', '');
+		$this->setServerName($nbt->getString('ServerName', ''));
         if(($commandsTag = $nbt->getTag('Commands')) instanceof ListTag or $commandsTag instanceof CompoundTag){
             /** @var StringTag $stringTag */
             foreach($commandsTag as $stringTag){
@@ -62,6 +64,16 @@ class SlapperHuman extends Human implements SlapperInterface{
     }
 
 	public function setServerName(string $serverName): void{
+        if ($serverName !== "" && !isset($this->currentTask)) {
+            //update name automatically, this could be probably done better
+            $this->currentTask = MiniCore::getInstance()->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function () {
+                $this->sendData($this->getViewers());
+            }), 10 * 20, 10 * 20);
+        } else if ($serverName === "") {
+            $this->currentTask->cancel();
+            $this->currentTask = null;
+        }
+
 		$this->serverName = $serverName;
 	}
 
