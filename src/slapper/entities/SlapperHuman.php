@@ -69,7 +69,7 @@ class SlapperHuman extends Human implements SlapperInterface{
             $this->currentTask = MiniCore::getInstance()->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function () {
                 $this->sendData($this->getViewers());
             }), 10 * 20, 10 * 20);
-        } else if ($serverName === "") {
+        } else if ($serverName === "" && isset($this->currentTask)) {
             $this->currentTask->cancel();
             $this->currentTask = null;
         }

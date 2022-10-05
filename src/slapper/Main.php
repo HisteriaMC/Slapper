@@ -580,6 +580,7 @@ class Main extends PluginBase implements Listener {
                                                         $entity->setServerName("");
                                                         $sender->sendMessage($this->prefix . "Server name removed.");
                                                     }
+                                                return true;
                                                 default:
                                                     $sender->sendMessage($this->prefix . "Unknown command.");
                                                     return true;
@@ -655,6 +656,7 @@ class Main extends PluginBase implements Listener {
                             if(is_a($slapperClass, SlapperHuman::class, true)){
                                 /** @var SlapperHuman $entity */
                                 $entity = new $slapperClass($location, $sender->getSkin());
+                                $entity->getInventory()->setItem(0, $sender->getInventory()->getItemInHand());
                             }else{
                                 /** @var SlapperEntity $entity */
                                 $entity = new $slapperClass($location);
