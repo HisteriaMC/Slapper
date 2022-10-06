@@ -25,13 +25,9 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Utils;
-use pocketmine\world\Location;
 use pocketmine\world\World;
-use slapper\entities\other\SlapperBoat;
+use slapper\entities\SlapperBoat;
 use slapper\entities\SlapperEndCrystal;
-use slapper\entities\other\SlapperFallingSand;
-use slapper\entities\other\SlapperMinecart;
-use slapper\entities\other\SlapperPrimedTNT;
 use slapper\entities\SlapperBat;
 use slapper\entities\SlapperBlaze;
 use slapper\entities\SlapperCaveSpider;
@@ -44,6 +40,7 @@ use slapper\entities\SlapperEnderman;
 use slapper\entities\SlapperEndermite;
 use slapper\entities\SlapperEntity;
 use slapper\entities\SlapperEvoker;
+use slapper\entities\SlapperFallingSand;
 use slapper\entities\SlapperGhast;
 use slapper\entities\SlapperGuardian;
 use slapper\entities\SlapperHorse;
@@ -52,12 +49,14 @@ use slapper\entities\SlapperIronGolem;
 use slapper\entities\SlapperHusk;
 use slapper\entities\SlapperLavaSlime;
 use slapper\entities\SlapperLlama;
+use slapper\entities\SlapperMinecart;
 use slapper\entities\SlapperMule;
 use slapper\entities\SlapperMushroomCow;
 use slapper\entities\SlapperOcelot;
 use slapper\entities\SlapperPig;
 use slapper\entities\SlapperPigZombie;
 use slapper\entities\SlapperPolarBear;
+use slapper\entities\SlapperPrimedTNT;
 use slapper\entities\SlapperRabbit;
 use slapper\entities\SlapperSheep;
 use slapper\entities\SlapperShulker;
@@ -139,7 +138,7 @@ class Main extends PluginBase implements Listener {
         "remove: /slapper remove [id]",
         "version: /slapper version",
         "cancel: /slapper cancel",
-        "entitys: /slapper entitys",
+        "entities: /slapper entities",
     ];
     /** @var string[] */
     public $editArgs = [
@@ -210,7 +209,6 @@ class Main extends PluginBase implements Listener {
     }
 
 	public function checkUpdate(bool $isRetry = false): void {
-
 		$this->getServer()->getAsyncPool()->submitTask(new CheckUpdateTask($this->getDescription()->getName(), $this->getDescription()->getVersion()));
 	}
 
@@ -236,12 +234,11 @@ class Main extends PluginBase implements Listener {
                 $player = $this->getServer()->getPlayerByPrefix(array_shift($args));
                 if ($player instanceof Player) {
                     $this->getServer()->dispatchCommand($player, trim(implode(" ", $args)));
-                    return true;
-                } else {
+				} else {
                     $sender->sendMessage($this->prefix . "Player not found.");
-                    return true;
-                }
-            case "slapper":
+				}
+				return true;
+			case "slapper":
                 if ($sender instanceof Player) {
                     if (!isset($args[0])) {
                         $sender->sendMessage($this->prefix . "Please type '/slapper help'.");
@@ -273,13 +270,13 @@ class Main extends PluginBase implements Listener {
                             $sender->sendMessage($this->prefix . "Cancelled.");
                             return true;
                         case "list":
-                        case "entitys":
+                        case "entities":
                             if (!$sender->hasPermission("slapper.list")) {
                                 $sender->sendMessage($this->noperm);
                                 return true;
                             }
                             $sender->sendMessage($this->prefix . "Entity List."
-. TextFormat::BLUE . "Creeper, Bat, Sheep, PigZombie, Ghast, Blaze, IronGolem, Snowman, Ocelot, ZombieVillager, Cow, Zombie, Squid, Villager, Spider, Pig, MushroomCow, Wolf, LavaSlime, Silverfish, Skeleton, Slime, Chicken, Enderman, CaveSpider, Boat, Minecart, Mule, Witch, PrimedTNT, Horse, Donkey, SkeletonHorse, ZombieHorse, Rabbit, Stray, Husk, WitherSkeleton, FallingSand, ElderGuardian, Endermite, Evoker, Guardian, Llama, PolarBear, Shulker, Vex, Vindicator, Wither, EndCrystal");
+. TextFormat::BLUE . "Bat, Blaze, Boat, CaveSpider, Chicken, Cow, Creeper, Donkey, ElderGuardian, EndCrystal, Enderman, Endermite, Evoker, FallingSand, Ghast, Guardian, Horse, Human, Husk, IronGolem, LavaSlime, Llama, Minecart, Mule, MushroomCow, Ocelot, Pig, PigZombie, PolarBear, PrimedTNT, Rabbit, Sheep, Shulker, Silverfish, Skeleton, SkeletonHorse, Slime, Snowman, Spider, Squid, Stray, Vex, Villager, Vindicator, Witch, Wither, WitherSkeleton, Wolf, Zombie, ZombieHorse, ZombieVillager");
                             return true;
                         case "remove":
                             if (!$sender->hasPermission("slapper.remove")) {
@@ -558,7 +555,7 @@ class Main extends PluginBase implements Listener {
                                                     return true;
                                                 case "scale":
                                                 case "size":
-                                                    if (isset($args[2])) {
+                                                    if (isset($args[2]) && (float)$args[2] > 0) {
                                                         $scale = (float) $args[2];
                                                         $entity->setScale($scale);
                                                         $sender->sendMessage($this->prefix . "Updated scale.");
@@ -598,15 +595,14 @@ class Main extends PluginBase implements Listener {
                                 } else {
                                     $sender->sendMessage($this->prefix . "Entity does not exist.");
                                 }
-                                return true;
-                            } else {
+							} else {
                                 $sender->sendMessage($this->helpHeader);
                                 foreach ($this->editArgs as $msgArg) {
                                     $sender->sendMessage(TextFormat::GREEN . " - " . $msgArg . "\n");
                                 }
-                                return true;
-                            }
-                        case "help":
+							}
+							return true;
+						case "help":
                         case "?":
                             $sender->sendMessage($this->helpHeader);
                             foreach ($this->mainArgs as $msgArg) {
@@ -648,8 +644,7 @@ class Main extends PluginBase implements Listener {
                                 return true;
                             }
 
-                            /** @var class-string $slapperClass */
-                            $slapperClass = __NAMESPACE__ . "\\entities\\Slapper$chosenType";
+							$slapperClass = __NAMESPACE__ . "\\entities\\Slapper$chosenType";
                             Utils::testValidInstance($slapperClass, SlapperInterface::class);
 
                             $location = $sender->getLocation();

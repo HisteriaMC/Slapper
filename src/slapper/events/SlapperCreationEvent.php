@@ -28,7 +28,7 @@ class SlapperCreationEvent extends EntityEvent {
      * @param Player|null $creator
      * @param int         $cause
      */
-    public function __construct(Entity $entity, $type, Player $creator = null, $cause = self::CAUSE_COMMAND) {
+    public function __construct(Entity $entity, string $type, Player $creator = null, int $cause = self::CAUSE_COMMAND) {
         $this->entity = $entity;
         $this->type = $type;
         $this->creator = $creator;

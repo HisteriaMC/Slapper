@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace slapper\entities\other;
+namespace slapper\entities;
 
 use pocketmine\block\Block;
 use pocketmine\block\BlockFactory;
+use pocketmine\block\BlockLegacyIds;
 use pocketmine\data\bedrock\EntityLegacyIds;
 use pocketmine\entity\object\FallingBlock;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\IntTag;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
-
-use slapper\entities\SlapperEntity;
 
 class SlapperFallingSand extends SlapperEntity {
 
@@ -26,7 +26,8 @@ class SlapperFallingSand extends SlapperEntity {
         parent::initEntity($nbt);
 
         $blockFactory = BlockFactory::getInstance();
-        if(($blockIdTag = $nbt->getTag("BlockID")) === null){
+        if(($blockIdTag = $nbt->getTag("TileID")) === null){
+        	$nbt->setTag("TileID", new IntTag(BlockLegacyIds::SAND));
             $this->block = FallingBlock::parseBlockNBT($blockFactory, $nbt);
         }else{
             $this->block = $blockFactory->get($blockIdTag->getValue(), 0);

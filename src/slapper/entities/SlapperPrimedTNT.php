@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace slapper\entities\other;
+namespace slapper\entities;
 
 use pocketmine\data\bedrock\EntityLegacyIds;
-
-use slapper\entities\SlapperEntity;
 
 class SlapperPrimedTNT extends SlapperEntity {
 

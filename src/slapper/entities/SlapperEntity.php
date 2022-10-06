@@ -6,14 +6,12 @@ namespace slapper\entities;
 
 use pocketmine\data\bedrock\LegacyEntityIdToStringIdMap;
 use pocketmine\entity\Entity;
-use pocketmine\entity\Human;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Location;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\StringTag;
-use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataCollection;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
@@ -60,22 +58,20 @@ class SlapperEntity extends Entity implements SlapperInterface{
         $this->setImmobile(true);
         $this->setNameTagVisible(false);
 
-		if($nbt->getTag("Scale") !== null){
-			$this->setScale($nbt->getFloat("Scale"));
-		}
+		$this->setScale($nbt->getFloat('Scale', 1));
     }
 
     //For backwards-compatibility
     public function saveNBT(): CompoundTag{
         $nbt = parent::saveNBT();
-        $nbt = $nbt->merge($this->namedTagHack);
+		$nbt = $nbt->merge($this->namedTagHack);
         $commandsTag = new ListTag([], NBT::TAG_String);
-        $nbt->setTag('Commands', $commandsTag);
         foreach($this->commands as $command => $bool){
             $commandsTag->push(new StringTag($command));
         }
-        $nbt->setString('SlapperVersion', $this->version);
-		$nbt->setFloat("Scale", $this->scale);
+		$nbt->setFloat('Scale', $this->getScale());
+		$nbt->setString('SlapperVersion', $this->version);
+		$nbt->setTag('Commands', $commandsTag);
         return $nbt;
     }
 
@@ -144,6 +140,7 @@ class SlapperEntity extends Entity implements SlapperInterface{
                 throw new \TypeError('Typed property ' . get_class($this) . "::\$namedtag must be " . CompoundTag::class . ", " . gettype($value) . "used");
             }
             $this->namedTagHack = $value;
+            return;
         }
         throw new \ErrorException("Undefined property: " . get_class($this) . "::\$" . $name);
     }
