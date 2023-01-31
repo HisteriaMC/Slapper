@@ -38,7 +38,7 @@ trait SlapperTrait {
         //NOOP
     }
 
-    public function getDisplayName(Player $player): string {
+    public function getSlapperDisplayName(Player $player): string {
         $vars = [
             "{name}" => $player->getName(),
             "{display_name}" => $player->getDisplayName(),
