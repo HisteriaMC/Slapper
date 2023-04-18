@@ -105,7 +105,7 @@ class SlapperHuman extends Human implements SlapperInterface{
             $data[EntityMetadataProperties::NAMETAG] = new StringMetadataProperty(
 				$this->getSlapperDisplayName($p) . ($concat ? "\n".$p->getLang()->ts("lobby.slapperLore", ["count" => PlayerListAPI::getServerCountByName($this->serverName)]) : "")
 			);
-            $p->getNetworkSession()->syncActorData($this, $data);
+            $p->getNetworkSession()->getEntityEventBroadcaster()->syncActorData([$p->getNetworkSession()], $this, $data);
         }
     }
 

@@ -25,6 +25,7 @@ class CheckUpdateTask extends AsyncTask {
 		$api = "";
 		if($json !== null){
 			$releases = json_decode($json->getBody(), true);
+            if (!is_array($releases)) return;
 			foreach($releases as $release){
 				if(version_compare($highestVersion, $release["version"], ">=")){
 					continue;
