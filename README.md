@@ -2,6 +2,11 @@
     <a href="https://github.com/Vecnavium/Slapper"><img src="https://github.com/Vecnavium/Slapper/blob/stable/icon.png"></img></a><br>
     <b>The new home of Slapper, the NPC plugin for PocketMine-MP.</b>
 </p>
+<p align="center">
+Currently maintained by: KressentHosting  
+
+<p align="center">Website: https://kressenthosting.com
+	
 
 <p align="center">
     <img alt="GitHubrelease" src="https://img.shields.io/github/v/release/Vecnavium/Slapper?label=release&sort=semver">
